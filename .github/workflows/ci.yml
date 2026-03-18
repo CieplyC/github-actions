@@ -1,0 +1,48 @@
+
+# Nazwa workflow: Run tests
+name: Run tests
+
+# Eventy: push, pull_request
+on:
+  push:
+  pull_request:
+
+jobs: 
+  # Job: test
+  test:
+    name: Perform tests
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      # Krok 1: Checkout repo
+      - uses: actions/checkout@v4
+        name: checkout repo
+      # Krok 2: Install Python
+      - uses: actions/setup-python@v5
+        name: install python
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        name: install dependencies
+      - run: pytest -q
+        name: run pytest
+
+  # Job: lint
+  lint:
+    name: Lint code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: checkout repo
+      - uses: actions/setup-python@v5
+        name: install python
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+        name: install ruff
+      - run: ruff check .
+        name: run ruff check
